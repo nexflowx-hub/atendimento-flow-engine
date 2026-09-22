@@ -12,7 +12,7 @@ services:
     volumes:
       - typebot_db_data:/var/lib/postgresql/data
     networks:
-      - atendimento_internal
+      - flow_internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d typebot"]
       interval: 10s
@@ -27,7 +27,7 @@ services:
     volumes:
       - typebot_redis_data:/data
     networks:
-      - atendimento_internal
+      - flow_internal
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -48,7 +48,7 @@ services:
       NEXT_PUBLIC_BUILDER_ORIGIN: https://flow.atendimento.center
       NODE_OPTIONS: --no-node-snapshot
     networks:
-      - atendimento_internal
+      - flow_internal
       - platform_edge
     depends_on:
       typebot-db:
@@ -70,7 +70,7 @@ services:
       NEXT_PUBLIC_BUILDER_ORIGIN: https://flow.atendimento.center
       NODE_OPTIONS: --no-node-snapshot
     networks:
-      - atendimento_internal
+      - flow_internal
       - platform_edge
     depends_on:
       typebot-db:
@@ -79,9 +79,9 @@ services:
         condition: service_healthy
 
 networks:
-  atendimento_internal:
-    name: atendimento-center_atendimento_internal
-    external: true
+  flow_internal:
+    name: atendimento-flow_internal
+    driver: bridge
   platform_edge:
     external: true
 
