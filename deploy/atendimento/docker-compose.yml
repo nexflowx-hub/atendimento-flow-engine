@@ -1,0 +1,90 @@
+name: atendimento-center
+
+services:
+  typebot-db:
+    image: postgres:16-alpine
+    container_name: atendimento-typebot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: typebot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${TYPEBOT_DB_PASSWORD}
+    volumes:
+      - typebot_db_data:/var/lib/postgresql/data
+    networks:
+      - atendimento_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d typebot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  typebot-redis:
+    image: redis:7.4-alpine
+    container_name: atendimento-typebot-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - typebot_redis_data:/data
+    networks:
+      - atendimento_internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  typebot-builder:
+    image: ghcr.io/nexflowx-hub/atendimento-flow-builder:3.19.0-atc.1
+    container_name: atendimento-flow-builder
+    restart: unless-stopped
+    env_file:
+      - .env.typebot
+    environment:
+      DATABASE_URL: postgresql://postgres:${TYPEBOT_DB_PASSWORD}@typebot-db:5432/typebot
+      REDIS_URL: redis://typebot-redis:6379
+      NEXTAUTH_URL: https://flow.atendimento.center
+      NEXT_PUBLIC_VIEWER_URL: https://bot.atendimento.center
+      NEXT_PUBLIC_BUILDER_ORIGIN: https://flow.atendimento.center
+      NODE_OPTIONS: --no-node-snapshot
+    networks:
+      - atendimento_internal
+      - platform_edge
+    depends_on:
+      typebot-db:
+        condition: service_healthy
+      typebot-redis:
+        condition: service_healthy
+
+  typebot-viewer:
+    image: ghcr.io/nexflowx-hub/atendimento-flow-viewer:3.19.0-atc.1
+    container_name: atendimento-flow-viewer
+    restart: unless-stopped
+    env_file:
+      - .env.typebot
+    environment:
+      DATABASE_URL: postgresql://postgres:${TYPEBOT_DB_PASSWORD}@typebot-db:5432/typebot
+      REDIS_URL: redis://typebot-redis:6379
+      NEXTAUTH_URL: https://flow.atendimento.center
+      NEXT_PUBLIC_VIEWER_URL: https://bot.atendimento.center
+      NEXT_PUBLIC_BUILDER_ORIGIN: https://flow.atendimento.center
+      NODE_OPTIONS: --no-node-snapshot
+    networks:
+      - atendimento_internal
+      - platform_edge
+    depends_on:
+      typebot-db:
+        condition: service_healthy
+      typebot-redis:
+        condition: service_healthy
+
+networks:
+  atendimento_internal:
+    name: atendimento-center_atendimento_internal
+    external: true
+  platform_edge:
+    external: true
+
+volumes:
+  typebot_db_data:
+  typebot_redis_data:
