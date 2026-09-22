@@ -1,0 +1,24 @@
+# Atendimento.Center Flow Engine
+# Merge these blocks into the central Caddyfile.
+
+flow.atendimento.center {
+    encode zstd gzip
+
+    # Keep the builder internal/private.
+    basic_auth {
+        atlas {$FLOW_BASIC_AUTH_HASH}
+    }
+
+    reverse_proxy atendimento-flow-builder:3000 {
+        flush_interval -1
+    }
+}
+
+bot.atendimento.center {
+    encode zstd gzip
+
+    # Public runtime used by published bots and site embeds.
+    reverse_proxy atendimento-flow-viewer:3000 {
+        flush_interval -1
+    }
+}
