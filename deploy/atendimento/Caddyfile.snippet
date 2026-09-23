@@ -4,9 +4,10 @@
 flow.atendimento.center {
     encode zstd gzip
 
-    # Keep the builder internal/private. Reuse the same Basic Auth as Chatwoot.
+    # Private builder. Reuse the Basic Auth credential already configured
+    # for the Evolution admin endpoint on the central Caddy container.
     basic_auth {
-        atlas {$CHATWOOT_BASIC_AUTH_HASH}
+        atlas {$EVOLUTION_BASIC_AUTH_HASH}
     }
 
     reverse_proxy atendimento-flow-builder:3000 {
