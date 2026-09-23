@@ -47,6 +47,7 @@ services:
       NEXT_PUBLIC_VIEWER_URL: https://bot.atendimento.center
       NEXT_PUBLIC_BUILDER_ORIGIN: https://flow.atendimento.center
       NODE_OPTIONS: --no-node-snapshot
+      HOSTNAME: 0.0.0.0
     networks:
       - flow_internal
       - platform_edge
@@ -69,6 +70,7 @@ services:
       NEXT_PUBLIC_VIEWER_URL: https://bot.atendimento.center
       NEXT_PUBLIC_BUILDER_ORIGIN: https://flow.atendimento.center
       NODE_OPTIONS: --no-node-snapshot
+      HOSTNAME: 0.0.0.0
     networks:
       - flow_internal
       - platform_edge
