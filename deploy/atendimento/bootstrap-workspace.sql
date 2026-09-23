@@ -49,7 +49,8 @@ BEGIN
     ('atc-folder-mypets', 'MyPets', NULL, target_workspace_id, NOW(), NOW()),
     ('atc-folder-facelove', 'FaceLove', NULL, target_workspace_id, NOW(), NOW()),
     ('atc-folder-novidades', 'Novidades.Store', NULL, target_workspace_id, NOW(), NOW()),
-    ('atc-folder-atlashub', 'AtlasHub', NULL, target_workspace_id, NOW(), NOW())
+    ('atc-folder-atlashub', 'AtlasHub', NULL, target_workspace_id, NOW(), NOW()),
+    ('atc-folder-treinomilitar', 'TreinoMilitar', NULL, target_workspace_id, NOW(), NOW())
   ON CONFLICT (id) DO UPDATE
     SET name = EXCLUDED.name,
         "workspaceId" = EXCLUDED."workspaceId",
@@ -135,6 +136,46 @@ BEGIN
     );
   END IF;
 
-  RAISE NOTICE 'Workspace % preparado como Atendimento.Center, branding OFF e 4 operações criadas.', target_workspace_id;
+  IF NOT EXISTS (
+    SELECT 1 FROM "Typebot"
+     WHERE "workspaceId" = target_workspace_id
+       AND (id = 'atc-bot-treinomilitar' OR "publicId" = 'treinomilitar')
+  ) THEN
+    INSERT INTO "Typebot" (
+      id, version, name, "folderId", groups, events, variables, edges,
+      theme, settings, "publicId", "workspaceId", "createdAt", "updatedAt"
+    )
+    VALUES (
+      'atc-bot-treinomilitar', '6.1', 'Atendimento & Vendas',
+      'atc-folder-treinomilitar',
+      '[]'::jsonb,
+      '[{"type":"start","graphCoordinates":{"x":0,"y":0},"id":"atc-start-treinomilitar"}]'::jsonb,
+      '[]'::jsonb, '[]'::jsonb, '{}'::jsonb,
+      '{"general":{"isBrandingEnabled":false}}'::jsonb,
+      'treinomilitar', target_workspace_id, NOW(), NOW()
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM "Typebot"
+     WHERE "workspaceId" = target_workspace_id
+       AND (id = 'atc-bot-treinomilitar-coach' OR "publicId" = 'treinomilitar-coach')
+  ) THEN
+    INSERT INTO "Typebot" (
+      id, version, name, "folderId", groups, events, variables, edges,
+      theme, settings, "publicId", "workspaceId", "createdAt", "updatedAt"
+    )
+    VALUES (
+      'atc-bot-treinomilitar-coach', '6.1', 'Personal Trainer IA',
+      'atc-folder-treinomilitar',
+      '[]'::jsonb,
+      '[{"type":"start","graphCoordinates":{"x":0,"y":0},"id":"atc-start-treinomilitar-coach"}]'::jsonb,
+      '[]'::jsonb, '[]'::jsonb, '{}'::jsonb,
+      '{"general":{"isBrandingEnabled":false}}'::jsonb,
+      'treinomilitar-coach', target_workspace_id, NOW(), NOW()
+    );
+  END IF;
+
+  RAISE NOTICE 'Workspace % preparado como Atendimento.Center, branding OFF, 5 operações e 6 bots criados.', target_workspace_id;
 END
 $$;
