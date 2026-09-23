@@ -1,4 +1,4 @@
-name: atendimento-center
+name: atendimento-flow
 
 services:
   typebot-db:
@@ -89,4 +89,6 @@ networks:
 
 volumes:
   typebot_db_data:
+    name: atendimento-center_typebot_db_data
   typebot_redis_data:
+    name: atendimento-center_typebot_redis_data
