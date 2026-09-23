@@ -42,6 +42,99 @@ BEGIN
    WHERE published."typebotId" = typebot.id
      AND typebot."workspaceId" = target_workspace_id;
 
-  RAISE NOTICE 'Workspace % preparado como Atendimento.Center, branding OFF.', target_workspace_id;
+  INSERT INTO "DashboardFolder" (
+    id, name, "parentFolderId", "workspaceId", "createdAt", "updatedAt"
+  )
+  VALUES
+    ('atc-folder-mypets', 'MyPets', NULL, target_workspace_id, NOW(), NOW()),
+    ('atc-folder-facelove', 'FaceLove', NULL, target_workspace_id, NOW(), NOW()),
+    ('atc-folder-novidades', 'Novidades.Store', NULL, target_workspace_id, NOW(), NOW()),
+    ('atc-folder-atlashub', 'AtlasHub', NULL, target_workspace_id, NOW(), NOW())
+  ON CONFLICT (id) DO UPDATE
+    SET name = EXCLUDED.name,
+        "workspaceId" = EXCLUDED."workspaceId",
+        "updatedAt" = NOW();
+
+  IF NOT EXISTS (
+    SELECT 1 FROM "Typebot"
+     WHERE "workspaceId" = target_workspace_id
+       AND (id = 'atc-bot-mypets' OR "publicId" = 'mypets')
+  ) THEN
+    INSERT INTO "Typebot" (
+      id, version, name, "folderId", groups, events, variables, edges,
+      theme, settings, "publicId", "workspaceId", "createdAt", "updatedAt"
+    )
+    VALUES (
+      'atc-bot-mypets', '6.1', 'Atendimento Principal',
+      'atc-folder-mypets',
+      '[]'::jsonb,
+      '[{"type":"start","graphCoordinates":{"x":0,"y":0},"id":"atc-start-mypets"}]'::jsonb,
+      '[]'::jsonb, '[]'::jsonb, '{}'::jsonb,
+      '{"general":{"isBrandingEnabled":false}}'::jsonb,
+      'mypets', target_workspace_id, NOW(), NOW()
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM "Typebot"
+     WHERE "workspaceId" = target_workspace_id
+       AND (id = 'atc-bot-facelove' OR "publicId" = 'facelove')
+  ) THEN
+    INSERT INTO "Typebot" (
+      id, version, name, "folderId", groups, events, variables, edges,
+      theme, settings, "publicId", "workspaceId", "createdAt", "updatedAt"
+    )
+    VALUES (
+      'atc-bot-facelove', '6.1', 'Atendimento Principal',
+      'atc-folder-facelove',
+      '[]'::jsonb,
+      '[{"type":"start","graphCoordinates":{"x":0,"y":0},"id":"atc-start-facelove"}]'::jsonb,
+      '[]'::jsonb, '[]'::jsonb, '{}'::jsonb,
+      '{"general":{"isBrandingEnabled":false}}'::jsonb,
+      'facelove', target_workspace_id, NOW(), NOW()
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM "Typebot"
+     WHERE "workspaceId" = target_workspace_id
+       AND (id = 'atc-bot-novidades' OR "publicId" = 'novidades')
+  ) THEN
+    INSERT INTO "Typebot" (
+      id, version, name, "folderId", groups, events, variables, edges,
+      theme, settings, "publicId", "workspaceId", "createdAt", "updatedAt"
+    )
+    VALUES (
+      'atc-bot-novidades', '6.1', 'Atendimento Principal',
+      'atc-folder-novidades',
+      '[]'::jsonb,
+      '[{"type":"start","graphCoordinates":{"x":0,"y":0},"id":"atc-start-novidades"}]'::jsonb,
+      '[]'::jsonb, '[]'::jsonb, '{}'::jsonb,
+      '{"general":{"isBrandingEnabled":false}}'::jsonb,
+      'novidades', target_workspace_id, NOW(), NOW()
+    );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM "Typebot"
+     WHERE "workspaceId" = target_workspace_id
+       AND (id = 'atc-bot-atlashub' OR "publicId" = 'atlashub')
+  ) THEN
+    INSERT INTO "Typebot" (
+      id, version, name, "folderId", groups, events, variables, edges,
+      theme, settings, "publicId", "workspaceId", "createdAt", "updatedAt"
+    )
+    VALUES (
+      'atc-bot-atlashub', '6.1', 'Atendimento Principal',
+      'atc-folder-atlashub',
+      '[]'::jsonb,
+      '[{"type":"start","graphCoordinates":{"x":0,"y":0},"id":"atc-start-atlashub"}]'::jsonb,
+      '[]'::jsonb, '[]'::jsonb, '{}'::jsonb,
+      '{"general":{"isBrandingEnabled":false}}'::jsonb,
+      'atlashub', target_workspace_id, NOW(), NOW()
+    );
+  END IF;
+
+  RAISE NOTICE 'Workspace % preparado como Atendimento.Center, branding OFF e 4 operações criadas.', target_workspace_id;
 END
 $$;
